@@ -1,0 +1,60 @@
+
+
+import pandas as pd
+
+# Create a sample dataset
+data = {
+    'Age': [25, 34, 45, 40, 36, 30, 50, 28, 39, 42],
+    'Experience': [2, 10, 20, 18, 12, 6, 22, 4, 15, 16],
+    'Education Level': [1, 2, 3, 2, 1, 1, 3, 1, 2, 2],
+    'Performance Score': [7, 8, 9, 6, 7, 6, 10, 7, 8, 9],
+    'Promotion': [0, 1, 1, 0, 1, 0, 1, 0, 1, 1]  # 1 = promoted to VP, 0 = not promoted
+}
+
+# Create a DataFrame
+df = pd.DataFrame(data)
+
+# Show the dataset
+print(df)
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Step 1: Prepare the dataset (independent variables and target variable)
+X = df[['Age', 'Experience', 'Education Level', 'Performance Score']]  # Features
+y = df['Promotion']  # Target variable (1 = Promoted, 0 = Not promoted)
+
+# Step 2: Split the dataset into training and testing sets (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Step 3: Train the Logistic Regression model
+log_reg = LogisticRegression()
+log_reg.fit(X_train, y_train)
+
+# Step 4: Make predictions on the test set
+y_pred = log_reg.predict(X_test)
+
+# Step 5: Evaluate the model's performance
+accuracy = accuracy_score(y_test, y_pred)
+conf_matrix = confusion_matrix(y_test, y_pred)
+class_report = classification_report(y_test, y_pred)
+
+# Step 6: Display the results
+print(f"Accuracy: {accuracy}")
+print(f"Confusion Matrix:\n{conf_matrix}")
+print(f"Classification Report:\n{class_report}")
+
+# Step 7: Predict for new, unknown employees (for example, employee with unknown VP status)
+new_data = pd.DataFrame({
+    'Age': [38],
+    'Experience': [14],
+    'Education Level': [2],
+    'Performance Score': [8]
+})
+
+# Predict if the new employee will be promoted to VP
+prediction = log_reg.predict(new_data)
+print(f"Prediction for new employee: {'Promoted to VP' if prediction[0] == 1 else 'Not promoted to VP'}")
