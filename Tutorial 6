@@ -1,0 +1,54 @@
+import numpy as np
+from sklearn.datasets import make_blobs
+import matplotlib.pyplot as plt
+
+# 1. Generate sample data
+X, _ = make_blobs(n_samples=10, centers=3, n_features=2, random_state=42)
+
+# 2. Distance matrix
+def euclidean(p1, p2):
+    return np.linalg.norm(p1 - p2)
+
+def complete_linkage_dist(cluster1, cluster2):
+    return max(euclidean(p1, p2) for p1 in cluster1 for p2 in cluster2)
+
+# 3. Start with each point as a separate cluster
+clusters = [[point] for point in X]
+
+# 4. Hierarchical clustering
+def hierarchical_clustering(data, num_clusters):
+    clusters = [[point] for point in data]
+
+    while len(clusters) > num_clusters:
+        min_dist = float('inf')
+        to_merge = (0, 1)
+
+        # Compute complete-linkage distances between all cluster pairs
+        for i in range(len(clusters)):
+            for j in range(i+1, len(clusters)):
+                dist = complete_linkage_dist(clusters[i], clusters[j])
+                if dist < min_dist:
+                    min_dist = dist
+                    to_merge = (i, j)
+
+        # Merge the closest clusters
+        i, j = to_merge
+        new_cluster = clusters[i] + clusters[j]
+        # Remove old clusters and add new one
+        clusters = [c for idx, c in enumerate(clusters) if idx not in (i, j)]
+        clusters.append(new_cluster)
+
+    return clusters
+
+# 5. Run clustering
+final_clusters = hierarchical_clustering(X, num_clusters=3)
+
+# 6. Plot results
+colors = ['r', 'g', 'b', 'c', 'm', 'y']
+for idx, cluster in enumerate(final_clusters):
+    cluster = np.array(cluster)
+    plt.scatter(cluster[:, 0], cluster[:, 1], color=colors[idx % len(colors)], label=f'Cluster {idx+1}')
+
+plt.title("Hierarchical Clustering (Complete Linkage)")
+plt.legend()
+plt.show()
