@@ -1,0 +1,76 @@
+from itertools import combinations
+
+# Sample transactions
+transactions = [
+    ['milk', 'bread', 'nuts', 'apple'],
+    ['milk', 'bread', 'nuts'],
+    ['milk', 'bread'],
+    ['milk', 'apple'],
+    ['bread', 'apple']
+]
+
+min_support = 0.6  # 60% support
+
+def get_frequent_itemsets(transactions, min_support):
+    itemsets = []
+    support_data = {}
+
+    # Convert to list of sets
+    transactions = list(map(set, transactions))
+    num_transactions = len(transactions)
+
+    # Step 1: Get 1-itemsets
+    single_items = {}
+    for t in transactions:
+        for item in t:
+            single_items[item] = single_items.get(item, 0) + 1
+
+    current_frequent = []
+    for item, count in single_items.items():
+        support = count / num_transactions
+        if support >= min_support:
+            current_frequent.append(frozenset([item]))
+            support_data[frozenset([item])] = support
+
+    itemsets.extend(current_frequent)
+
+    # Step 2: Iteratively build k-itemsets
+    k = 2
+    while current_frequent:
+        candidates = generate_candidates(current_frequent, k)
+        candidate_count = {}
+
+        for t in transactions:
+            for c in candidates:
+                if c.issubset(t):
+                    candidate_count[c] = candidate_count.get(c, 0) + 1
+
+        current_frequent = []
+        for c, count in candidate_count.items():
+            support = count / num_transactions
+            if support >= min_support:
+                current_frequent.append(c)
+                support_data[c] = support
+
+        itemsets.extend(current_frequent)
+        k += 1
+
+    return itemsets, support_data
+
+def generate_candidates(prev_frequent, k):
+    """Generate candidate k-itemsets from (k-1)-itemsets"""
+    candidates = set()
+    for a in prev_frequent:
+        for b in prev_frequent:
+            union = a | b
+            if len(union) == k:
+                candidates.add(union)
+    return candidates
+
+# Run Apriori
+frequent_itemsets, support_data = get_frequent_itemsets(transactions, min_support)
+
+# Display Results
+print("Frequent Itemsets:")
+for itemset in frequent_itemsets:
+    print(f"{set(itemset)} - support: {support_data[itemset]:.2f}")
