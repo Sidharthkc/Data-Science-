@@ -1,0 +1,40 @@
+import numpy as np
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+# Load data
+X, y = load_iris(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Parameters
+n_estimators = 10
+max_depth = 3
+
+# Create the forest
+forest = []
+for i in range(n_estimators):
+    # Bootstrap sample
+    indices = np.random.choice(len(X_train), size=len(X_train), replace=True)
+    X_sample, y_sample = X_train[indices], y_train[indices]
+    
+    # Train decision tree
+    tree = DecisionTreeClassifier(max_depth=max_depth, random_state=i)
+    tree.fit(X_sample, y_sample)
+    forest.append(tree)
+
+# Predict using average probabilities
+proba_sum = np.zeros((len(X_test), len(np.unique(y))))
+for tree in forest:
+    proba_sum += tree.predict_proba(X_test)
+
+# Average the probabilities
+avg_proba = proba_sum / n_estimators
+
+# Final prediction
+y_pred = np.argmax(avg_proba, axis=1)
+
+# Evaluate
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Random Forest Accuracy (Avg Proba Ensemble): {accuracy:.4f}")
