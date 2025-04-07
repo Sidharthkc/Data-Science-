@@ -1,0 +1,34 @@
+#using standard library
+
+import numpy as np
+
+# Define the 2x2 matrix
+matrix = np.array([[1, 2],
+                   [3, 4]])
+
+# Calculate the LDA transformation matrix (by multiplying the matrix with itself for simplicity in this case)
+lda_result = np.matmul(matrix, matrix)  # Matrix multiplication using numpy
+
+print("LDA result using NumPy's matmul:\n", lda_result)
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#using normal matrix multiplication
+
+
+def matrix_multiply(A, B):
+    """Multiply two 2x2 matrices manually"""
+    result = np.zeros((2, 2))
+    for i in range(2):
+        for j in range(2):
+            result[i][j] = sum(A[i][k] * B[k][j] for k in range(2))
+    return result
+
+# Define the 2x2 matrix again
+matrix = [[1, 2],
+          [3, 4]]
+
+# Perform matrix multiplication manually
+lda_result_manual = matrix_multiply(matrix, matrix)
+
+print("LDA result using normal matrix multiplication:\n", np.array(lda_result_manual))
