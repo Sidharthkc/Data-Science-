@@ -1,0 +1,40 @@
+import pandas as pd
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+
+# Sample data: Replace this with your actual dataset
+data = {
+    'TV': [230.1, 44.5, 17.2, 151.5, 180.8],
+    'Radio': [37.8, 39.3, 45.9, 41.3, 10.8],
+    'Newspaper': [69.2, 45.1, 69.3, 58.5, 58.4],
+    'Sales': [22.1, 10.4, 9.3, 18.0, 12.8]
+}
+
+# Create a DataFrame
+df = pd.DataFrame(data)
+
+# Independent variables (TV, Radio, Newspaper)
+X = df[['TV', 'Radio', 'Newspaper']]
+
+# Add a constant to the independent variables (for the intercept term)
+X = sm.add_constant(X)
+
+# Dependent variable (Sales)
+y = df['Sales']
+
+# Fit the model
+model = sm.OLS(y, X).fit()
+
+# Print the model summary
+print(model.summary())
+
+# Calculate the residual standard error (RSE)
+residuals = model.resid
+rse = (sum(residuals**2) / (len(df) - len(X.columns)))**0.5
+print(f'Residual Standard Error (RSE): {rse}')
+
+# Extract R-squared and F-statistic from the summary
+r_squared = model.rsquared
+f_statistic = model.fvalue
+print(f'R-squared: {r_squared}')
+print(f'F-statistic: {f_statistic}')
